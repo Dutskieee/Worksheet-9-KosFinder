@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import '../services/kos_service.dart';
+import '../services/notification_service.dart';
 import '../services/profile_service.dart';
 import '../utils/security_test.dart';
 import '../widgets/role_guard.dart';
@@ -23,6 +24,7 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     _profileFuture = ProfileService().getMyProfile();
     _kosFuture = _kosService.fetchAll();
+    NotificationService.instance.init();
   }
 
   void _refreshKos() {
