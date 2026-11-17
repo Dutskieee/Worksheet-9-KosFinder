@@ -1,31 +1,48 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'app_keys.dart';
+import 'pages/home_page.dart';
 import 'pages/login_page.dart';
+import 'services/auth_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Supabase.initialize(
     url: 'https://fjxvhqdpyufulvvvxkzt.supabase.co',
-  anonKey: 'sb_publishable_AiCpVJBkCsBi6N2W3L8tWg_fZwZ5FCl',
+    anonKey: 'sb_publishable_AiCpVJBkCsBi6N2W3L8tWg_fZwZ5FCl',
   );
 
-  runApp(const MyApp());
+  Supabase.instance.client.auth.onAuthStateChange.listen((data) {
+    final event = data.event;
+    if (event == AuthChangeEvent.signedOut) {
+      navigatorKey.currentState?.pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const LoginPage()),
+        (route) => false,
+      );
+    }
+  });
+
+  runApp(const KosFinderApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class KosFinderApp extends StatelessWidget {
+  const KosFinderApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'KosFinder',
       debugShowCheckedModeBanner: false,
+      navigatorKey: navigatorKey,
+      scaffoldMessengerKey: messengerKey,
       theme: ThemeData(
         colorSchemeSeed: Colors.indigo,
         useMaterial3: true,
       ),
-      home: const LoginPage(),
+      home: AuthService.instance.isLoggedIn
+          ? const HomePage()
+          : const LoginPage(),
     );
   }
 }
